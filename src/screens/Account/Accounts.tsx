@@ -13,7 +13,6 @@ export default function Account() {
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       user ? setUserLogin(true) : setUserLogin(false);
-      console.log(userLogin);
     });
   }, [userLogin]);
   if (userLogin === null) return <Loader isVisible={true} text={'Cargando'} />;
