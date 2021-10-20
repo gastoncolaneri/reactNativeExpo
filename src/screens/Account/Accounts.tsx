@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import UserLogged from './UserLogged/UserLogged.screen';
 import UserNotLogged from './UserNotLogged/UserNotLogged.screen';
-import { firebaseApp } from '../../utils/firebase';
+import firebaseApp from '../../utils/firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Loader from '../../components/Loader/Loader.component';
 
 export default function Account() {
-  firebaseApp;
-  const auth = getAuth();
+  const auth = getAuth(firebaseApp);
   const [userLogin, setUserLogin] = useState<any | null>(null);
 
   useEffect(() => {

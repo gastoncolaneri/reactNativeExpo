@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { Input, Icon, Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import { size, isEmpty } from 'lodash';
+import firebaseApp from '../../../utils/firebase';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { styles } from './LoginForm.style';
 import { emailValidation } from '../../../utils/validations';
@@ -19,7 +20,7 @@ export default function RegisterForm() {
   const [loader, setLoader] = useState(false);
 
   const toastProps = { position: -100 };
-  const auth = getAuth();
+  const auth = getAuth(firebaseApp);
   const navigation = useNavigation();
 
   const onSubmit = () => {

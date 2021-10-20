@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { Text, View } from 'react-native';
 import { Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
+import firebaseApp from '../../../utils/firebase';
 import { getAuth, signOut } from 'firebase/auth';
 import { styles } from './UserLogged.style';
 import UserInfo from '../../../components/Account/UserInfo/UserInfo.component';
 export default function UserLogged() {
   const [userInfo, setUserInfo] = useState({});
   const toastProps = { position: -100 };
-  const auth = getAuth();
+  const auth = getAuth(firebaseApp);
 
   useEffect(() => {
     const user: any = auth.currentUser;
