@@ -4,7 +4,9 @@ import { View } from 'react-native';
 import { Input, Icon, Button, Text, Avatar } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
 import firebaseApp from '../../../utils/firebase';
-import { getStorage, ref, uploadBytes } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getAuth, updateProfile } from 'firebase/auth';
+
 import { styles } from './UserInfo.style';
 import Loader from '../../Loader/Loader.component';
 import colors from '../../../utils/colors';
@@ -13,12 +15,14 @@ import * as ImagenPiker from 'expo-image-picker';
 
 export default function UserInfo(props: any) {
   const storage = getStorage(firebaseApp);
+  const auth: any = getAuth(firebaseApp);
 
   const {
     userInfo: { uid, photoURL, displayName, email },
   } = props;
   const accessoryProps = { underlayColor: colors.GENERAL, size: 25 };
   const toastProps = { position: -100 };
+  const [loader, setLoader] = useState(false);
 
   const changeAvatar = async () => {
     const resultPermission = await MediaLibrary.requestPermissionsAsync();
@@ -31,6 +35,7 @@ export default function UserInfo(props: any) {
       if (result.cancelled) {
         Toast.show('Selección de imagen cancelada', toastProps);
       } else {
+        setLoader(true);
         uploadImg(result.uri);
       }
     } else {
@@ -48,6 +53,10 @@ export default function UserInfo(props: any) {
     uploadBytes(imagenRef, blob).then((snapshot) => {
       Toast.show('Imagen subida correctamente', toastProps);
     });
+    const urlDescarga = await getDownloadURL(imagenRef);
+    await updateProfile(auth.currentUser, { photoURL: urlDescarga });
+    setLoader(false);
+    Toast.show('Imagen modificada exitosamente', toastProps);
   };
 
   return (
@@ -55,14 +64,17 @@ export default function UserInfo(props: any) {
       <Avatar
         rounded
         size="large"
-        source={{
-          uri: 'https://s3.amazonaws.com/uifaces/faces/twitter/adhamdannaway/128.jpg',
-        }}
+        source={
+          photoURL
+            ? { uri: photoURL }
+            : require('../../../../assets/img/logoUserDefault.png')
+        }
         containerStyle={styles.userInfoAvatar}
       >
         <Avatar.Accessory {...accessoryProps} onPress={() => changeAvatar()} />
       </Avatar>
       <Text>Info USer</Text>
+      <Loader isVisible={loader} text={'Subiendo imagen'} />
     </View>
   );
 }
