@@ -73,8 +73,13 @@ export default function UserInfo(props: any) {
       >
         <Avatar.Accessory {...accessoryProps} onPress={() => changeAvatar()} />
       </Avatar>
-      <Text>Info USer</Text>
-      <Loader isVisible={loader} text={'Subiendo imagen'} />
+      <View>
+        <Text style={styles.displayName}>
+          {displayName ? displayName : 'Anónimo'}
+        </Text>
+        <Text>{email ? email : 'Socia Login'}</Text>
+      </View>
+      <Loader isVisible={loader} text={'Actualizando imagen'} />
     </View>
   );
 }

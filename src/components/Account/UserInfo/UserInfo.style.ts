@@ -11,4 +11,8 @@ export const styles = StyleSheet.create({
   userInfoAvatar: {
     marginRight: 20,
   },
+  displayName: {
+    fontWeight: 'bold',
+    paddingBottom: 5,
+  },
 });

@@ -10,13 +10,16 @@ import UserOptions from '../../../components/Account/UserOptions/UserOptions.com
 
 export default function UserLogged() {
   const [userInfo, setUserInfo] = useState({});
+  const [reloadInfoUser, setReloadInfoUser] = useState(false);
   const toastProps = { position: -100 };
   const auth = getAuth(firebaseApp);
 
   useEffect(() => {
     const user: any = auth.currentUser;
     setUserInfo(user);
-  }, []);
+    setReloadInfoUser(false);
+  }, [reloadInfoUser]);
+
   const logOut = () => {
     signOut(auth)
       .then(() => {
@@ -33,7 +36,7 @@ export default function UserLogged() {
   return (
     <View style={styles.userContainer}>
       <UserInfo userInfo={userInfo} />
-      <UserOptions userInfo={userInfo} />
+      <UserOptions userInfo={userInfo} setReloadInfoUser={setReloadInfoUser} />
       <Button
         title="Cerrar sesión"
         buttonStyle={styles.btnCloseSession}
