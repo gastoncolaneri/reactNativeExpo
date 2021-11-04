@@ -48,7 +48,6 @@ export default function UpdateEmail(props: any) {
           Toast.show('El email fue modificado exitosamente', toastProps);
         })
         .catch(() => {
-          console.log(email);
           setLoader(false);
           setErrors({ pass: 'La contraseña no es correcta' });
         });

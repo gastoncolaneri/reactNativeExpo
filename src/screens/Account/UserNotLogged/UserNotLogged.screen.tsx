@@ -2,11 +2,11 @@ import React from 'react';
 import { Text, ScrollView, View, Image } from 'react-native';
 import { styles } from './UserNotLogged.style';
 import { Button } from 'react-native-elements';
-import { useNavigation } from '@react-navigation/native';
 
-export default function UserLogged() {
-  const navigation = useNavigation();
-
+export default function UserLogged(props: any) {
+  const {
+    props: { navigation },
+  } = props;
   return (
     <ScrollView centerContent={true} style={styles.viewBody}>
       <Image

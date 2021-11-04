@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
 import { View } from 'react-native';
 import { Input, Icon, Button } from 'react-native-elements';
 import Toast from 'react-native-root-toast';
@@ -10,7 +9,10 @@ import { styles } from './LoginForm.style';
 import { emailValidation } from '../../../utils/validations';
 import Loader from '../../Loader/Loader.component';
 
-export default function RegisterForm() {
+export default function LoginForm(props: any) {
+  const {
+    props: { navigation },
+  } = props;
   const [emptyPass, setEmptyPass] = useState(true);
   const [showPass, setShowPass] = useState(false);
   const [formData, setFormData] = useState({
@@ -21,7 +23,6 @@ export default function RegisterForm() {
 
   const toastProps = { position: -100 };
   const auth = getAuth(firebaseApp);
-  const navigation = useNavigation();
 
   const onSubmit = () => {
     if (isEmpty(formData.email) || isEmpty(formData.password)) {
@@ -34,7 +35,6 @@ export default function RegisterForm() {
         .then((userCredential) => {
           setLoader(false);
           navigation.navigate('account');
-          //   const user = userCredential.user;
         })
         .catch(() => {
           setLoader(false);

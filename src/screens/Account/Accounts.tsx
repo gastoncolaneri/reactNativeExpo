@@ -5,7 +5,7 @@ import firebaseApp from '../../utils/firebase';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import Loader from '../../components/Loader/Loader.component';
 
-export default function Account() {
+export default function Account(props: any) {
   const auth = getAuth(firebaseApp);
   const [userLogin, setUserLogin] = useState<any | null>(null);
 
@@ -15,5 +15,5 @@ export default function Account() {
     });
   }, [userLogin]);
   if (userLogin === null) return <Loader isVisible={true} text={'Cargando'} />;
-  return userLogin ? <UserLogged /> : <UserNotLogged />;
+  return userLogin ? <UserLogged /> : <UserNotLogged props={props} />;
 }

@@ -1,13 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, Image } from 'react-native';
 import { styles } from './Login.style';
-import { Divider } from 'react-native-elements';
-import { useNavigation } from '@react-navigation/native';
 import LoginForm from '../../../components/Account/LoginForm/LoginForm.component';
 
-export default function Login() {
-  const navigation = useNavigation();
-  const toastProps = { position: -100 };
+export default function Login(props: any) {
+  const { navigation } = props;
 
   return (
     <ScrollView>
@@ -17,7 +14,7 @@ export default function Login() {
         style={styles.imgLogo}
       />
       <View style={styles.viewContainer}>
-        <LoginForm />
+        <LoginForm props={props} />
       </View>
       <View style={styles.viewContainer}>
         <Text>
