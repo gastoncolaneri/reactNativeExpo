@@ -16,8 +16,6 @@ export default function AddRestaurant(props: any) {
   const [loader, setLoader] = useState(false);
   const toastProps = { position: -100 };
 
-  Toast.show('El restaurante se ha creado exitosamente', toastProps);
-
   useEffect(() => {
     onAuthStateChanged(auth, (user) => {
       user ? setUserLogin(true) : setUserLogin(false);

@@ -53,7 +53,10 @@ export default function UserInfo(props: any) {
     uploadBytes(imagenRef, blob).then((snapshot) => {
       Toast.show('Imagen subida correctamente', toastProps);
     });
+    console.log(imagenRef);
     const urlDescarga = await getDownloadURL(imagenRef);
+    console.log(urlDescarga);
+
     await updateProfile(auth.currentUser, { photoURL: urlDescarga });
     setLoader(false);
     Toast.show('Imagen modificada exitosamente', toastProps);

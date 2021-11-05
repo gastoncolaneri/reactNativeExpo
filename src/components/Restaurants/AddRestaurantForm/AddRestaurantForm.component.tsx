@@ -7,8 +7,12 @@ import { getAuth } from 'firebase/auth';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import * as MediaLibrary from 'expo-media-library';
 import * as ImagenPiker from 'expo-image-picker';
+import * as Location from 'expo-location';
+import MapView, { Marker } from 'react-native-maps';
 import { map, size, filter } from 'lodash';
+import uuid from 'react-native-uuid';
 import Loader from '../../../components/Loader/Loader.component';
+import Modal from '../../Modal/Modal.component';
 import { styles } from './AddRestaurantForm.style';
 import colors from '../../../utils/colors';
 
@@ -23,10 +27,27 @@ export default function AddRestaurantForm() {
     descripcion: '',
   });
   const [imgSelected, setImgSelected] = useState<any>([]);
-  console.log(imgSelected);
+  const [isVisibleMap, setIsVisibleMap] = useState(false);
+  const [location, setLocation] = useState<any>({
+    latitude: 0,
+    longitude: 0,
+    latitudeDelta: 0.001,
+    longitudeDelta: 0.001,
+  });
+  const [locationRestaurante, setLocationRestaurante] = useState<any>(null);
 
   const addRestaurant = () => {
-    // Toast.show('El restaurante se ha creado exitosamente', toastProps);
+    if (!formData.nombre || !formData.direccion || !formData.descripcion) {
+      Toast.show('Todos los cambios son requeridos', toastProps);
+    } else if (size(imgSelected) === 0) {
+      Toast.show('El restaurante debe tener al menos una foto', toastProps);
+    } else if (!locationRestaurante) {
+      Toast.show('Debes seleccionar la ubicación del restaurante', toastProps);
+    } else {
+      setLoader(true);
+      console.log('Ok!');
+      uploadImg();
+    }
   };
 
   const onChange = (event: any, type: string) => {
@@ -47,7 +68,6 @@ export default function AddRestaurantForm() {
         setLoader(true);
         setImgSelected([...imgSelected, result.uri]);
         setLoader(false);
-        // uploadImg(result.uri);
       }
     } else {
       Toast.show(
@@ -73,20 +93,68 @@ export default function AddRestaurantForm() {
       { cancelable: false }
     );
   };
-  const uploadImg = async (uri: any) => {
-    // const response = await fetch(uri);
-    // const blob = await response.blob();
-    // const imagenRef = ref(storage, `avatar/${uid}`);
-    // uploadBytes(imagenRef, blob).then((snapshot) => {
-    //   Toast.show('Imagen subida correctamente', toastProps);
-    // });
-    // const urlDescarga = await getDownloadURL(imagenRef);
-    // await updateProfile(auth.currentUser, { photoURL: urlDescarga });
-    // setLoader(false);
-    // Toast.show('Imagen modificada exitosamente', toastProps);
+
+  const confirmLocation = () => {
+    setLocationRestaurante(location);
+    Toast.show('Ubicación guardada correctamente', toastProps);
+    setIsVisibleMap(false);
+  };
+
+  const positionRequest = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== 'granted') {
+      Toast.show(
+        'Es necesario aceptar los permisos de localización',
+        toastProps
+      );
+    } else {
+      const loc = await Location.getCurrentPositionAsync({});
+      setLocation({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.001,
+        longitudeDelta: 0.001,
+      });
+    }
+  };
+
+  useEffect(() => {
+    positionRequest();
+  }, []);
+
+  const uploadImg = async () => {
+    const imageBlob: any = [];
+
+    await Promise.all(
+      map(imgSelected, async (image) => {
+        const response = await fetch(image);
+        const blob = await response.blob();
+        const name = uuid.v4();
+        const imagenRef = ref(storage, `restaurantes/${name}`);
+        uploadBytes(imagenRef, blob).then((snapshot) => {
+          setLoader(false);
+          Toast.show('Imágenes subidas correctamente', toastProps);
+        });
+        console.log(imagenRef);
+        const urlDescarga = await getDownloadURL(imagenRef);
+        console.log(urlDescarga);
+        imageBlob.push(urlDescarga);
+      })
+    );
+    console.log(imageBlob);
   };
   return (
     <ScrollView style={styles.scrollView}>
+      <View>
+        <Image
+          source={
+            imgSelected[0]
+              ? { uri: imgSelected[0] }
+              : require('../../../../assets/img/imgNotFound.png')
+          }
+          style={styles.viewMainImg}
+        />
+      </View>
       <View style={styles.viewForm}>
         <Input
           placeholder="Nombre del restaurante"
@@ -97,6 +165,12 @@ export default function AddRestaurantForm() {
           placeholder="Dirección"
           containerStyle={styles.input}
           onChange={(e) => onChange(e, 'direccion')}
+          rightIcon={{
+            type: 'material-community',
+            name: 'google-maps',
+            color: locationRestaurante ? colors.GENERAL : colors.GREY,
+            onPress: () => setIsVisibleMap(true),
+          }}
         />
         <Input
           placeholder="Descripción del restaurante"
@@ -130,6 +204,38 @@ export default function AddRestaurantForm() {
         buttonStyle={styles.btnAddRestaurant}
       />
       <Loader isVisible={loader} text={'Creando restaurante'} />
+      <Modal isVisible={isVisibleMap} setIsVisible={setIsVisibleMap}>
+        {location ? (
+          <MapView
+            style={styles.mapStyle}
+            initialRegion={location}
+            showsUserLocation
+            onRegionChange={(region) => setLocation(region)}
+          >
+            <Marker
+              coordinate={{
+                latitude: location.latitude,
+                longitude: location.longitude,
+              }}
+              draggable
+            />
+          </MapView>
+        ) : null}
+        <View style={styles.viewMapBtn}>
+          <Button
+            title="Guardar ubicación"
+            containerStyle={styles.viewBtnSave}
+            buttonStyle={styles.btnSave}
+            onPress={() => confirmLocation()}
+          />
+          <Button
+            title="Cancelar"
+            containerStyle={styles.viewBtnCancel}
+            buttonStyle={styles.btnCancel}
+            onPress={() => setIsVisibleMap(false)}
+          />
+        </View>
+      </Modal>
     </ScrollView>
   );
 }
