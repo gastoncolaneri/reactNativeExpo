@@ -131,14 +131,20 @@ export default function AddRestaurantForm() {
         const blob = await response.blob();
         const name = uuid.v4();
         const imagenRef = ref(storage, `restaurantes/${name}`);
-        uploadBytes(imagenRef, blob).then((snapshot) => {
+        await uploadBytes(imagenRef, blob).then((snapshot) => {
           setLoader(false);
           Toast.show('Imágenes subidas correctamente', toastProps);
         });
         console.log(imagenRef);
-        const urlDescarga = await getDownloadURL(imagenRef);
-        console.log(urlDescarga);
-        imageBlob.push(urlDescarga);
+        // const urlDescarga = await getDownloadURL(imagenRef);
+        await getDownloadURL(imagenRef)
+          .then((url) => {
+            console.log(url);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        // imageBlob.push(urlDescarga);
       })
     );
     console.log(imageBlob);
